@@ -1,7 +1,11 @@
-#include <math.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+
+const int PART_ONE = 0;
+const int PART_TWO = 1;
 
 
 const int MAX_RED   = 12;
@@ -57,12 +61,12 @@ struct Game process_line(char *line) {
     // Moving to the part after the ":"
     game_info = strtok(NULL, ":");
 
-    // The first round
+    // The first cube in the round
     char *curr_cube = strtok(game_info, ";,");
     update_cube_count(curr_cube, &game);
 
 
-    // The rest of the rounds
+    // The rest of the cubes in the round
     while ((curr_cube = strtok(NULL, ";,")) != NULL) {
         update_cube_count(curr_cube, &game);
     }
@@ -75,7 +79,7 @@ struct Game process_line(char *line) {
 int main(int argc, char *argv[])
 {
 
-    char filename[] = "./input.txt";
+    char filename[] = "./input2.txt";
     FILE *fs   = fopen(filename, "r");
     char *line = { 0 };
     size_t line_size = 0;
@@ -91,13 +95,25 @@ int main(int argc, char *argv[])
 
     while (getline(&line, &line_size, fs) != -1) {
         game = process_line(line);
-        if (game.max_red_cubes <= MAX_RED && game.max_green_cubes <= MAX_GREEN && game.max_blue_cubes <= MAX_BLUE) {
-            printf("game:\n\tid = %d\n\tred = %d\n\tgreen = %d\n\tblue = %d\n", game.id, game.max_red_cubes, game.max_green_cubes, game.max_blue_cubes);
-            sum += game.id;
+
+        if (PART_ONE) {
+
+            if (game.max_red_cubes <= MAX_RED && game.max_green_cubes <= MAX_GREEN && game.max_blue_cubes <= MAX_BLUE) {
+                printf("game:\n\tid = %d\n\tred = %d\n\tgreen = %d\n\tblue = %d\n", game.id, game.max_red_cubes, game.max_green_cubes, game.max_blue_cubes);
+                sum += game.id;
+            }
+
+
+        } else if (PART_TWO) {
+
+            sum += game.max_red_cubes * game.max_blue_cubes * game.max_green_cubes;
+
         }
+
+
     }
 
-    printf("Sum of possible game ids = %d\n", sum);
+    printf("Answer = %d\n", sum);
 
 
     fclose(fs);
