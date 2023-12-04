@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+
 struct Position
 {
     uint32_t x;
@@ -23,26 +25,61 @@ typedef struct
     struct Position pos;
 } number_t;
 
+
+// Globals
+symbol_t symbols[2048];
+uint16_t symbols_index = 0;
+
+number_t numbers[2048];
+uint16_t numbers_index = 0;
+
+
+
 int get_number_length(unsigned long number)
 {
     return floor(log10((number))) + 1;
 }
+
 
 int get_x_pos_difference(number_t n, symbol_t s)
 {
     return s.pos.x - n.pos.x;
 }
 
-int part_one()
-{
-
-
-}
 
 int get_y_pos_difference(number_t n, symbol_t s)
 {
     return s.pos.y - n.pos.y;
 }
+
+
+unsigned long part_one()
+{
+    unsigned long sum = 0;
+    // If difference in x pos is -1 or the length of the number - 1 or - 2 then we are good.
+    // If difference in y pos is -1 or 1 or 0 then we are good.
+    for (uint16_t i = 0; i < numbers_index; i++)
+    {
+        number_t n = numbers[i];
+        uint8_t num_length = get_number_length(n.num);
+
+        for (uint16_t j = 0; j < symbols_index; j++)
+        {
+            symbol_t s = symbols[j];
+            int x_pos_difference = get_x_pos_difference(n, s);
+            int y_pos_difference = get_y_pos_difference(n, s);
+            if ( (x_pos_difference == -1 || x_pos_difference == num_length || x_pos_difference == 0 ||
+                x_pos_difference == num_length - 1 || x_pos_difference == num_length - 2) &&
+                (y_pos_difference == -1 || y_pos_difference == 0 || y_pos_difference == 1) )
+            {
+                sum += n.num;
+            }
+        }
+    }
+
+    return sum;
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -63,15 +100,10 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    unsigned long sum = 0;
     uint32_t curr_line = 0;
     char symbol_chars[] = "*#+=$-&%@/";
 
-    symbol_t symbols[2048];
-    uint16_t symbols_index = 0;
 
-    number_t numbers[2048];
-    uint16_t numbers_index = 0;
 
     while (getline(&line, &line_size, fs) != -1)
     {
@@ -126,30 +158,11 @@ int main(int argc, char *argv[])
         curr_line++;
     }
 
-    // If difference in x pos is -1 or the length of the number - 1 or - 2 then we are good.
-    // If difference in y pos is -1 or 1 or 0 then we are good.
-    for (uint16_t i = 0; i < numbers_index; i++)
-    {
-        number_t n = numbers[i];
-        uint8_t num_length = get_number_length(n.num);
-
-        for (uint16_t j = 0; j < symbols_index; j++)
-        {
-            symbol_t s = symbols[j];
-            int x_pos_difference = get_x_pos_difference(n, s);
-            int y_pos_difference = get_y_pos_difference(n, s);
-            if ( (x_pos_difference == -1 || x_pos_difference == num_length || x_pos_difference == 0 ||
-                 x_pos_difference == num_length - 1 || x_pos_difference == num_length - 2) &&
-                (y_pos_difference == -1 || y_pos_difference == 0 || y_pos_difference == 1) )
-            {
-                sum += n.num;
-            }
-        }
-    }
 
     // Part 2 should be just looping through the symbols and if the symbol is a gear we find the advacent numbers for it and if they are 2 we multiply them
 
-    printf("Answer: %lu\n", sum);
+    printf("Part 1 answer: %lu\n", part_one());
+    // printf("Part 2 answer: %lu\n", part_two(numbers, numbers_index, symbols, symbols_index));
 
     fclose(fs);
     free(line);
