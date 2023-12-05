@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <math.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +18,7 @@ typedef struct
 {
     char symbol;
     struct Position pos;
+    unsigned long adj_nums[64];
 } symbol_t;
 
 typedef struct
@@ -76,6 +78,60 @@ unsigned long part_one()
             }
         }
     }
+
+    return sum;
+}
+
+unsigned long part_two()
+{
+    // Part 2 should be just looping through the symbols and if the symbol is a gear we find the advacent numbers for it and if they are 2 we multiply them
+    unsigned long sum = 0;
+    size_t prev_i = -1;
+
+    for (size_t i = 0; i < symbols_index; i++) {
+
+        symbol_t s = symbols[i];
+        size_t adj_nums_index = 0;
+
+        if (s.symbol == '*')
+        {
+
+            for (size_t j = 0; j < numbers_index; j++)
+            {
+
+                number_t n = numbers[j];
+                uint8_t num_length = get_number_length(n.num);
+                int x_pos_difference = get_x_pos_difference(n, s);
+                int y_pos_difference = get_y_pos_difference(n, s);
+
+                if ( (x_pos_difference == -1 || x_pos_difference == num_length || x_pos_difference == 0 ||
+                    x_pos_difference == num_length - 1 || x_pos_difference == num_length - 2) &&
+                    (y_pos_difference == -1 || y_pos_difference == 0 || y_pos_difference == 1) )
+                {
+                    if (i == prev_i) {
+                        sum += s.adj_nums[adj_nums_index] * s.adj_nums[adj_nums_index - 1];
+                        printf("%lu\n", sum);
+                    }
+
+                    prev_i = i;
+
+                    // printf("%zu: Found '%lu' adjacent to '%c'\n", i, n.num, s.symbol);
+                    s.adj_nums[adj_nums_index++] = n.num;
+                    
+                }
+            }
+
+            for (size_t i = 0; s.adj_nums[i] != 0; i++) {
+                printf("%lu ", s.adj_nums[i]);
+            }
+            printf("\n");
+
+
+        }
+
+    }
+
+
 
     return sum;
 }
@@ -159,10 +215,9 @@ int main(int argc, char *argv[])
     }
 
 
-    // Part 2 should be just looping through the symbols and if the symbol is a gear we find the advacent numbers for it and if they are 2 we multiply them
 
-    printf("Part 1 answer: %lu\n", part_one());
-    // printf("Part 2 answer: %lu\n", part_two(numbers, numbers_index, symbols, symbols_index));
+    // printf("Part 1 answer: %lu\n", part_one());
+    printf("Part 2 answer: %lu\n", part_two());
 
     fclose(fs);
     free(line);
