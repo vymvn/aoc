@@ -108,29 +108,18 @@ unsigned long part_two()
                     x_pos_difference == num_length - 1 || x_pos_difference == num_length - 2) &&
                     (y_pos_difference == -1 || y_pos_difference == 0 || y_pos_difference == 1) )
                 {
+                    s.adj_nums[adj_nums_index] = n.num;
                     if (i == prev_i) {
                         sum += s.adj_nums[adj_nums_index] * s.adj_nums[adj_nums_index - 1];
-                        printf("%lu\n", sum);
                     }
-
                     prev_i = i;
-
-                    // printf("%zu: Found '%lu' adjacent to '%c'\n", i, n.num, s.symbol);
-                    s.adj_nums[adj_nums_index++] = n.num;
-                    
+                    adj_nums_index++;
                 }
             }
-
-            for (size_t i = 0; s.adj_nums[i] != 0; i++) {
-                printf("%lu ", s.adj_nums[i]);
-            }
-            printf("\n");
-
 
         }
 
     }
-
 
 
     return sum;
@@ -215,8 +204,7 @@ int main(int argc, char *argv[])
     }
 
 
-
-    // printf("Part 1 answer: %lu\n", part_one());
+    printf("Part 1 answer: %lu\n", part_one());
     printf("Part 2 answer: %lu\n", part_two());
 
     fclose(fs);
