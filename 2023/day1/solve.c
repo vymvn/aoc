@@ -55,27 +55,29 @@ void find_alpha_values_and_replace(const char *input, char *output) {
 }
 
 
-int get_calibration_value(char *line, int *left, int *right) {
+int get_calibration_value(char *line) {
 
     // I stole this from lowlevellearning cuz it's better than mine lol
 
-    *left  = -1;
-    *right = -1;
+    int left  = -1;
+    int right = -1;
+    size_t total = 0;
 
     for (size_t i = 0; i < strlen(line); i++) {
         if (isdigit(line[i])) {
         
-            if (*left == -1) {
-                *left  = line[i] - 0x30;
-                *right = line[i] - 0x30;
+            if (left == -1) {
+                left  = line[i] - 0x30;
+                right = line[i] - 0x30;
             } else {
-                *right = atoi(&line[i]);
+                right = atoi(&line[i]);
             }
 
         }
     }
+    total += left * 10 + right;
 
-    return EXIT_SUCCESS;
+    return total;
 }
 
 // int get_first_int(char *string, char *c, int reverse) {
@@ -129,17 +131,13 @@ int main(int argc, char *argv[])
     size_t part1_sum = 0;
     size_t part2_sum = 0;
     char fixed_line[512] = { 0 };
-    int left;
-    int right;
 
     while (getline(&line, &buff_size, fs) != -1) {
-        int total = 0;
 
         if (PART_ONE) {
 
-            get_calibration_value(line, &left, &right);
-            total = left * 10 + right;
-            part1_sum += total;
+            calibration_value = get_calibration_value(line);
+            part1_sum += calibration_value;
 
         }
         if (PART_TWO) {
@@ -149,17 +147,15 @@ int main(int argc, char *argv[])
             // printf("og line = %s\n", line);
             // printf("fx line = %s\n", fixed_line);
             // calibration_value = get_calibration_value(fixed_line);
-            get_calibration_value(fixed_line, &left, &right);
+            calibration_value = get_calibration_value(fixed_line);
 
-            total = left * 10 + right;
-            part2_sum += total;
+            part2_sum += calibration_value;
         }
 
     }
 
     printf("Answers from file \"%s\":\nPart 1 => %zu\nPart 2 => %zu\n", filename, part1_sum, part2_sum);
 
-    free(line);
     fclose(fs);
 
     return EXIT_SUCCESS;
