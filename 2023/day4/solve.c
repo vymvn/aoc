@@ -10,15 +10,14 @@ typedef struct {
     int win_nums[64];
     int our_nums[128];
     int points;
-    unsigned long match_count;
+    size_t num_of_copies;
+    size_t match_count;
 } card_t;
 
 
 // Globals
-card_t all_cards[300000] = { 0 };
-card_t copied_cards[300000] = { 0 };
+card_t all_cards[4096] = { 0 };
 size_t all_cards_index = 0;
-size_t copied_cards_index = 0;
 size_t total_cards = 0;
 
 
@@ -42,6 +41,8 @@ int load_int_arr(char *source, int destination[]) {
 
 card_t process_line(char *line) {
     card_t c = { 0 };
+
+    c.num_of_copies = 1;
 
     // Gets the part before the ":"
     char *card_info = strtok(line, ":");
@@ -86,7 +87,7 @@ int part_one() {
             }
 
         }
-        printf("Card %d: points = %d\n", card.id, card.points);
+        // printf("Card %d: points = %d\n", card.id, card.points);
         sum += card.points;
 
     }
@@ -96,16 +97,11 @@ int part_one() {
 int find_match_count(card_t *c) {
 
     int curr_our_num = 0;
-
     for (int i = 0; (curr_our_num = c->our_nums[i]); i++) {
-
         int curr_win_num = 0;
         for (size_t j = 0; (curr_win_num = c->win_nums[j]); j++) {
-
             if (curr_win_num == curr_our_num) {
-
                 c->match_count++;
-
             }
         }
     }
@@ -113,35 +109,26 @@ int find_match_count(card_t *c) {
     return EXIT_SUCCESS;
 }
 
-int part_two() {
-    total_cards = all_cards_index;
-    // printf("Total cards = %d\n", total_cards);
+size_t part_two() {
     card_t card = {0};
 
     for (size_t i = 0; i < all_cards_index; i++) {
 
         card = all_cards[i];
-
         find_match_count(&card);
 
+        total_cards += card.num_of_copies;
         if (card.match_count) {
-            total_cards += card.match_count;
-            // printf("Total cards = %d\n", total_cards);
 
-
-            printf("Card %d has won copies of: ", card.id);
+            // printf("Card %d has won copies of: ", card.id);
             for (size_t i = 0; i < card.match_count; i++) {
-                card_t c = all_cards[card.id + i];
-                // find_match_count(c);
-                // total_cards += card.match_count;
-                printf("%d ", c.id);
-                copied_cards[copied_cards_index++] = c;
+                card_t *c = &all_cards[card.id + i];    // Pointer to card(s) after
+                c->num_of_copies += card.num_of_copies;
+                // printf("%d ", c->id);
             }
-            printf("\n");
+            // printf("\n");
             
         }
-
-        // printf("Card %d: win count = %d\n", card.id, card.match_count);
 
     }
 
@@ -173,10 +160,8 @@ int main(int argc, char *argv[]) {
 
     }
 
-    
-    // printf("Part 1 answer = %d\n", part_one());
-    printf("Part 2 answer = %d\n", part_two());
-
+    printf("Part 1 answer = %d\n", part_one());
+    printf("Part 2 answer = %lu\n", part_two());
 
     fclose(fs);
     
