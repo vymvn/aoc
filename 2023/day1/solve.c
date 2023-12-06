@@ -6,7 +6,7 @@
 #include <string.h>
 
 
-#define PART_ONE 0
+#define PART_ONE 1
 #define PART_TWO 1
 
 const char *digit_to_alpha[] = {
@@ -19,7 +19,7 @@ const char *digit_to_alpha[] = {
     "six",   // 6
     "seven", // 7
     "eight", // 8
-    "nine"   // 9
+    "nine",  // 9
 };
 
 
@@ -38,7 +38,7 @@ void find_alpha_values_and_replace(const char *input, char *output) {
                 // printf("Found \"%s\" at position %d\n", alpha_value, i);
                 output[output_index++] = '0' + j;
                 matched = 1;
-                i += alpha_length - 1;  // Move the index to the end of the found alpha value
+                i += alpha_length - 2;  // Move the index to the end of the found alpha value minus 1 to fix cases like "twone"
                 break;
 
             }
@@ -55,12 +55,14 @@ void find_alpha_values_and_replace(const char *input, char *output) {
 }
 
 
-int get_calibration_value(char *line, int8_t *left, int8_t *right) {
+int get_calibration_value(char *line, int *left, int *right) {
+
+    // I stole this from lowlevellearning cuz it's better than mine lol
 
     *left  = -1;
     *right = -1;
 
-    for (uint16_t i = 0; i < strlen(line); i++) {
+    for (size_t i = 0; i < strlen(line); i++) {
         if (isdigit(line[i])) {
         
             if (*left == -1) {
@@ -109,7 +111,11 @@ int get_calibration_value(char *line, int8_t *left, int8_t *right) {
 
 int main(int argc, char *argv[])
 {
-    char *filename = "./input.txt";
+    char *filename = argv[1];
+    if (filename == NULL || argc > 2) {
+        fprintf(stderr, "Usage: %s <input file>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
     FILE *fs   = fopen(filename, "r");
     char *line = { 0 };
     size_t buff_size = 0;
@@ -119,34 +125,39 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    uint8_t calibration_value = 0;
-    uint32_t sum = 0;
-    char fixed_line[200] = { 0 };
-    int8_t left;
-    int8_t right;
+    int calibration_value = 0;
+    size_t part1_sum = 0;
+    size_t part2_sum = 0;
+    char fixed_line[512] = { 0 };
+    int left;
+    int right;
 
     while (getline(&line, &buff_size, fs) != -1) {
+        int total = 0;
 
         if (PART_ONE) {
 
-            // calibration_value = get_calibration_value(line);
-            // sum += calibration_value;
+            get_calibration_value(line, &left, &right);
+            total = left * 10 + right;
+            part1_sum += total;
 
-        } else if (PART_TWO) {
+        }
+        if (PART_TWO) {
 
             line[strcspn(line, "\n")] = 0;
             find_alpha_values_and_replace(line, fixed_line);
-            printf("%s\n", fixed_line);
+            // printf("og line = %s\n", line);
+            // printf("fx line = %s\n", fixed_line);
             // calibration_value = get_calibration_value(fixed_line);
             get_calibration_value(fixed_line, &left, &right);
-            uint32_t total = left * 10 + right;
-            sum += total;
 
+            total = left * 10 + right;
+            part2_sum += total;
         }
+
     }
 
-    printf("Answer from file \"%s\": %d\n", filename, sum);
-
+    printf("Answers from file \"%s\":\nPart 1 => %zu\nPart 2 => %zu\n", filename, part1_sum, part2_sum);
 
     free(line);
     fclose(fs);
