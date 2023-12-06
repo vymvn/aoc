@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 typedef struct {
     int id;
     int win_nums[64];
@@ -110,20 +111,20 @@ int find_match_count(card_t *c) {
 }
 
 size_t part_two() {
-    card_t card = {0};
+    card_t *card;
 
     for (size_t i = 0; i < all_cards_index; i++) {
 
-        card = all_cards[i];
-        find_match_count(&card);
+        card = &all_cards[i];   // Pointer to current card
+        find_match_count(card);
 
-        total_cards += card.num_of_copies;
-        if (card.match_count) {
+        total_cards += card->num_of_copies;
+        if (card->match_count) {
 
             // printf("Card %d has won copies of: ", card.id);
-            for (size_t i = 0; i < card.match_count; i++) {
-                card_t *c = &all_cards[card.id + i];    // Pointer to card(s) after
-                c->num_of_copies += card.num_of_copies;
+            for (size_t i = 0; i < card->match_count; i++) {
+                card_t *c = &all_cards[card->id + i];    // Pointer to card(s) after
+                c->num_of_copies += card->num_of_copies;
                 // printf("%d ", c->id);
             }
             // printf("\n");
@@ -164,6 +165,7 @@ int main(int argc, char *argv[]) {
     printf("Part 2 answer = %lu\n", part_two());
 
     fclose(fs);
+    free(line);
     
     return EXIT_SUCCESS;
 }
