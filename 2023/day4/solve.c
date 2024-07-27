@@ -27,10 +27,10 @@ int load_int_arr(char *source, int destination[]) {
     size_t index = 0;
     while (*source) {
 
-         if (isdigit(*source)) {
+        if (isdigit(*source)) {
             int num = strtol(source, &source, 10);
             destination[index++] = num;
-         } else {
+        } else {
             source++;
         }
 
@@ -128,7 +128,7 @@ size_t part_two() {
                 // printf("%d ", c->id);
             }
             // printf("\n");
-            
+
         }
 
     }
@@ -166,6 +166,6 @@ int main(int argc, char *argv[]) {
 
     fclose(fs);
     free(line);
-    
+
     return EXIT_SUCCESS;
 }
